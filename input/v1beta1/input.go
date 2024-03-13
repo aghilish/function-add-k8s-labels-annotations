@@ -22,6 +22,9 @@ type Input struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// Example is an example field. Replace it with whatever input you need. :)
-	Example string `json:"example"`
+	// Labels are Kubernetes Labels to add to every Resource
+	Labels map[string]string `json:"labels"`
+
+	// Annotations are Kubernetes Annotations to add to every Resource
+	Annotations map[string]string `json:"annotations"`
 }

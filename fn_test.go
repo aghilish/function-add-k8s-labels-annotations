@@ -32,14 +32,15 @@ func TestRunFunction(t *testing.T) {
 		want   want
 	}{
 		"ResponseIsReturned": {
-			reason: "The Function should return a fatal result if no input was specified",
+			reason: "The Function should return a normal result if input is provided",
 			args: args{
 				req: &fnv1beta1.RunFunctionRequest{
 					Meta: &fnv1beta1.RequestMeta{Tag: "hello"},
 					Input: resource.MustStructJSON(`{
 						"apiVersion": "template.fn.crossplane.io/v1beta1",
 						"kind": "Input",
-						"example": "Hello, world"
+						"labels": {"key1": "value1", "key2": "value2"},
+						"annotations": {"annotation1": "value1", "annotation2": "value2"}
 					}`),
 				},
 			},
@@ -49,9 +50,10 @@ func TestRunFunction(t *testing.T) {
 					Results: []*fnv1beta1.Result{
 						{
 							Severity: fnv1beta1.Severity_SEVERITY_NORMAL,
-							Message:  "I was run with input \"Hello, world\"!",
+							Message:  "Kubernetes Labels and Annotations Added Successfully",
 						},
 					},
+					Desired: &fnv1beta1.State{}, // Update the expected desired field to match the actual behavior
 				},
 			},
 		},
