@@ -52,7 +52,6 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 		response.Fatal(rsp, errors.Wrapf(err, "cannot get desired composed resources from %T", req))
 		return rsp, nil
 	}
-
 	for name, dr := range desired {
 		f.log.Debug("Desired Resource", "composed-resource-name", name)
 		meta.AddLabels(dr.Resource, in.Labels) // Crossplane-runtime helper

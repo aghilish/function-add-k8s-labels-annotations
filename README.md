@@ -17,7 +17,7 @@ $ docker image build --tag c8n.io/aghilish/function-add-k8s-labels-annotations:$
 
 $ docker image push c8n.io/aghilish/function-add-k8s-labels-annotations:$TAG
 
-$ yq --inplace ".spec.package = \"c8n.io/aghilish/function-add-k8s-labels-annotations:$TAG\"" example/functions.yaml
+$ yq --inplace ".spec.package = \"c8n.io/aghilish/function-add-k8s-labels-annotations:$TAG\"" example/production/functions.yaml
 ```
 
 ## Running locally
@@ -31,7 +31,8 @@ $ go run . --insecure --debug
 
 ```shell
 # Then, in another terminal, call it with these example manifests
-$ crossplane beta render xr.yaml composition.yaml functions-dev.yaml -r
+$ cd example/local
+$ crossplane beta render xr.yaml composition.yaml functions.yaml -r
 ```
 
 ## Build runtime image 
@@ -41,4 +42,31 @@ $ docker build . --tag=runtime
 
 # Build a function package - see package/crossplane.yaml
 $ crossplane xpkg build -f package --embed-runtime-image=runtime
+```
+
+## Production Deployment
+```shell
+$ kind create cluster --wait 5m
+
+$ helm repo add crossplane-master https://charts.crossplane.io/master --force-update
+
+$ helm upgrade --install crossplane --namespace crossplane-system --create-namespace crossplane-master/crossplane --devel --set "args={--debug,--enable-usages}"
+
+$ cd example/production
+
+$ kubectl apply -f functions.yaml
+
+## wait untily healthy
+$ kubectl get function -w
+
+$ kubectl apply -f composition.yaml
+$ kubectl apply -f xrd.yaml
+
+$ kubectl apply -f aws-provider.yaml
+$ kubectl apply -f aws-providerconfig.yaml
+
+$ kubectl create secret generic aws-creds -n crossplane-system --from-file=creds=./aws-credentials.txt
+
+$ kubectl apply -f claim.yaml
+
 ```
